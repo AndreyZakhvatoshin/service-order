@@ -8,6 +8,7 @@ use App\Entity\Service;
 use App\Form\CreateOrderType;
 use App\Repository\OrderRepository;
 use App\Repository\ServiceRepository;
+use App\Service\OrderCreator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,7 +28,7 @@ final class OrderController extends AbstractController
     }
 
     #[Route('/order/create', name: 'app_order_create', methods: ['GET', 'POST'])]
-    public function store(Request $request, EntityManagerInterface $em, ServiceRepository $serviceRepository): Response
+    public function store(Request $request, OrderCreator $orderCreator, ServiceRepository $serviceRepository): Response
     {
         $services = $serviceRepository->findAll();
         $serviceChoices = [];
@@ -38,21 +39,10 @@ final class OrderController extends AbstractController
         $form = $this->createForm(CreateOrderType::class, null, [
             'service_choices' => $serviceChoices,
         ]);
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var OrderDto $data */
-            $data = $form->getData();
-
-            $order = new Order();
-            $order->setEmail($data->email);
-            $order->setServiceId(
-                $em->getRepository(Service::class)->find($data->serviceId)
-            );
-            $em->persist($order);
-            $em->flush();
-
+            $orderCreator->createOrder($form->getData());
             return $this->redirectToRoute('app_orders');
         }
 
