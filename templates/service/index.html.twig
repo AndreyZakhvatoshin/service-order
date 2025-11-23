@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Services{% endblock %}
+
+{% block body %}
+    <form method="post" action="{{ path('app_order_create') }}">
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email" required>
+
+        <label for="service-select">Услуга:</label>
+        <select id="service-select" name="service" required>
+            <option value="">-- Выберите услугу --</option>
+            {% for service in services %}
+                <option value="{{ service.id }}" data-price="{{ service.price }}">{{ service.name }}</option>
+            {% endfor %}
+        </select>
+
+        <div>
+            Стоимость: <span id="service-price">0.00</span>
+        </div>
+
+        <button type="submit">Заказать</button>
+    </form>
+
+    <script>
+        const select = document.getElementById('service-select');
+        const priceSpan = document.getElementById('service-price');
+
+        select.addEventListener('change', function () {
+            const price = this.options[this.selectedIndex].getAttribute('data-price') || '0.00';
+            priceSpan.textContent = price;
+        });
+    </script>
+{% endblock %}

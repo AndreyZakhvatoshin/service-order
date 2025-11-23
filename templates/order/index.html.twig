@@ -1,0 +1,32 @@
+{# templates/order/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Список заказов{% endblock %}
+
+{% block body %}
+    <h1>Список заказов</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>ID заказа</th>
+            <th>Услуга</th>
+            <th>Email</th>
+            <th>Дата создания</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.serviceId.name }}</td>
+                <td>{{ order.email }}</td>
+                <td>{{ order.createdAt|date('d.m.Y H:i') }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">Заказы отсутствуют</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

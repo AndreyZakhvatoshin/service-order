@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Services{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+    {{ form_row(form.email) }}
+    {{ form_row(form.serviceId) }}
+    <div>
+        Стоимость: <span id="service-price">0.00</span>
+    </div>
+    <button type="submit">Заказать</button>
+    {{ form_end(form) }}
+
+    <script>
+        const priceSpan = document.getElementById('service-price');
+        const serviceSelect = document.getElementById('{{ form.serviceId.vars.id }}');
+        const services = {
+            {% for service in services %}
+            '{{ service.id }}': '{{ service.price }}',
+            {% endfor %}
+        };
+
+        serviceSelect.addEventListener('change', () => {
+            const selectedId = serviceSelect.value;
+            priceSpan.textContent = services[selectedId] ?? '0.00';
+        });
+    </script>
+{% endblock %}
