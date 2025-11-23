@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Dto\OrderDto;
 use App\Entity\Order;
+use App\Entity\Service;
 use App\Form\CreateOrderType;
 use App\Repository\OrderRepository;
 use App\Repository\ServiceRepository;
@@ -27,20 +29,33 @@ final class OrderController extends AbstractController
     #[Route('/order/create', name: 'app_order_create', methods: ['GET', 'POST'])]
     public function store(Request $request, EntityManagerInterface $em, ServiceRepository $serviceRepository): Response
     {
-        $order = new Order();
-        $form = $this->createForm(CreateOrderType::class, $order);
+        $services = $serviceRepository->findAll();
+        $serviceChoices = [];
+        foreach ($services as $service) {
+            $serviceChoices[$service->getName()] = $service->getId();
+        }
+
+        $form = $this->createForm(CreateOrderType::class, null, [
+            'service_choices' => $serviceChoices,
+        ]);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var OrderDto $data */
+            $data = $form->getData();
+
+            $order = new Order();
+            $order->setEmail($data->email);
+            $order->setServiceId(
+                $em->getRepository(Service::class)->find($data->serviceId)
+            );
             $em->persist($order);
             $em->flush();
-
-            $this->addFlash('success', 'Заказ создан!');
 
             return $this->redirectToRoute('app_orders');
         }
 
-        $services = $serviceRepository->findAll();
         return $this->render('order/create.html.twig', [
             'form' => $form->createView(),
             'services' => $services,
