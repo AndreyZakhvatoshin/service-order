@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\OrderRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: '`order`')]
@@ -17,9 +18,12 @@ class Order
 
     #[ORM\ManyToOne(inversedBy: 'orders')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotBlank(message: "Пожалуйста, выберите услугу")]
     private ?Service $serviceId = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Email не может быть пустым")]
+    #[Assert\Email(message: "Некорректный формат email")]
     private ?string $email = null;
 
     #[ORM\Column]
